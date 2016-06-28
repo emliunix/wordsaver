@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta charset="UTF-8">
+    <title>Word Saver</title>
+    <link rel="stylesheet" href="assets/overlay.css">
+    <link rel="stylesheet" href="assets/style.css">
+    <link rel="stylesheet" href="assets/wordItem.css">
+    <link rel="stylesheet" href="assets/toast.css">
+    <link rel="stylesheet" href="assets/font-awesome.css">
+    <script src="assets/vue.js"></script>
+    <script src="assets/vue-resource.js"></script>
+    <script src="assets/textinput.js"></script>
+</head>
+<body>
+    <div id="app">
+        <div class="blur-wrapper {{show?'blur':''}}">
+            <div class="bg-wrapper">
+                <img src="assets/background.png" alt="" class="background">
+            </div>
+            <h1>Words</h1>
+            <div class="card console">
+                <input type="text" class="text-input query-input" placeholder="Search a word" v-model="query">
+                <button class="btn btn-add fa fa-plus-square" @click="addword(query)"> add</button>
+                <button class="btn btn-refresh fa fa-refresh" @click="refresh()"> refresh</button>
+            </div>
+            <ul class="word-list">
+                <li class="card word-item" @click="showWord(word.wid)" v-for="word in words">
+                    <span class="word">{{word.word}}</span>
+                    <button class="btn btn-remove fa fa-trash" @click.stop="removeWord(word.wid)"> remove</button>
+                    <i class="btn-remove-small fa fa-trash" @click.stop="removeWord(word.wid)"></i>
+                </li>
+            </ul>
+        </div>
+        <modal-box :show.sync="show">
+            <word-item :word="word"></word-item>
+        </modal-box>
+        <toast :messages="messages">
+        </toast>
+    </div>
+    <script src="assets/app.js"></script>
+</body>
+</html>

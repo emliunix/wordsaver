@@ -1,0 +1,8 @@
+<div class="modal-holder">
+    <div class="overlay" transition="overlay" v-show="show" >
+        <div class="overlay-mask" @click="show=false"></div>
+        <div v-show="show" transition="overlay-inner" class="card overlay-inner">
+            <slot></slot>
+        </div>
+    </div>
+</div>

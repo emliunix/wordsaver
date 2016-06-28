@@ -1,0 +1,32 @@
+@charset "UTF-8";
+
+.toast {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    width: 200px;
+}
+
+.toast-msg {
+    margin-top: 10px;
+    font-size: small;
+    padding: 1em;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+}
+
+.toast-info {
+    color: #66bb6a;
+}
+
+.toast-error {
+    color: #ef5350;
+}
+
+.toast-msg-transition {
+    transition: all .5s ease-in-out;
+}
+
+.toast-msg-leave {
+    opacity: 0;
+}

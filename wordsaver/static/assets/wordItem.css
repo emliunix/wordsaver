@@ -1,0 +1,35 @@
+@charset "UTF-8";
+
+.definitions .pos {
+    display: inline-block;
+    color: #FAFAFA;
+    background: #888;
+    text-align: center;
+    margin-right: .5em;
+    min-width: 2em;
+}
+
+.definitions > div {
+    margin-top: .5em;
+}
+
+.pronounces .pron {
+    color: #EF6C00;
+}
+
+.pronounces .pron:link {
+    color: #EF6C00;
+    text-decoration: none;
+}
+
+@media screen and (min-width: 600px) {
+    .word-info {
+        width: 400px;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .word-info {
+        width: 80vw;
+    }
+}

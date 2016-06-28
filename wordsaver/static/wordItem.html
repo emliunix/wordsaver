@@ -1,0 +1,21 @@
+<div class="word-info">
+    <div v-if="word">
+        <h2>{{word.word}} <img src="assets/bing.png" @click="querybing(word.wid)" alt="bing"></h2>
+        <div class="pronounces">
+            <a class="pron_us pron fa fa-volume-up" v-if="word.pronounce_us" @href="#" @click="$dispatch('audio-play', word.pronounce_us)"> US</a>
+            <a class="pron_eng pron fa fa-volume-up" v-if="word.pronounce_eng" @href="#" @click="$dispatch('audio-play', word.pronounce_eng)"> Eng</a>
+        </div>
+        <div v-if="word.definitions&&word.definitions.length" class="definitions">
+            <div v-for="defi in word.definitions">
+                <b class="pos">{{defi.type}}</b>
+                <span class="def">{{defi.definition}}</span>
+            </div>
+        </div>
+        <div v-if="word.variants&&word.variants.length" class="variants">
+            <div v-for="vari in word.variants">
+                <b class="type">{{vari.kind}}</b>
+                <span class="word">{{vari.word}}</span>
+            </div>
+        </div>
+    </div>
+</div>
