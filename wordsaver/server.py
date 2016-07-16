@@ -6,10 +6,24 @@ from tornado.web import RequestHandler, Application, RedirectHandler, StaticFile
 from tornado import netutil
 from tornado.httpserver import HTTPServer
 import wordsaver.dbop as dbop
+from datetimeutil import JSONEncoderWithDatetime
 import json
 import os
-import datetime
-import dateutil
+from wordsaver.config import siteconfig
+
+
+def datetimejsonwrite(RequestHandler):
+    jsonencoder = JSONEncoderWithDatetime()
+    oldwrite = RequestHandler.write
+    def f(self, obj):
+        if isinstance(obj, dict):
+            self.set_header("Content-Type", "application/json; charset=utf-8")
+            oldwrite(self, jsonencoder.encode(obj))
+        else:
+            oldwrite(self, obj)
+    RequestHandler.write = f
+
+datetimejsonwrite(RequestHandler)
 
 def exceptwrapper(meth):
     def f(self, *args, **kwargs):
@@ -33,8 +47,6 @@ class WordsHandler(RequestHandler):
         if contenttype and not contenttype.find("application/json") == -1:
             jobj = json.loads(self.request.body.decode("UTF-8"))
             word = jobj["word"]
-            date = jobj["date"]
-            datetime.datetime.now().second()
             w = dbop.addword(word)
             if w:
                 self.write({"status": "ok", "result": w})
@@ -85,9 +97,11 @@ def run():
     ], debug=False)
 
     server = HTTPServer(app)
-    # mode 438 means 0o666
-    socket = netutil.bind_unix_socket("/var/wordsaver/socket", mode=438)
-    tornado.process.fork_processes(0)
-    server.add_sockets([socket])
-    # server.start(0)
+    if "socket" == siteconfig["bindtype"]:
+        # mode 438 means 0o666
+        socket = netutil.bind_unix_socket(siteconfig["socketpath"], mode=438)
+        tornado.process.fork_processes(0)
+        server.add_sockets([socket])
+    else:
+        server.listen(siteconfig["port"])
     IOLoop.current().start()

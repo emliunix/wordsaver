@@ -2,15 +2,23 @@
 
 import psycopg2
 import psycopg2.pool
-import wordsaver.dbconfig as dbconfig
+import wordsaver.config as config
 import os
 import itertools
 import wordsaver.bing as bing
 
-minconn = dbconfig.poolconfig["minconn"]
-maxconn = dbconfig.poolconfig["maxconn"]
+minconn = config.dbconfig["poolmin"]
+maxconn = config.dbconfig["poolmax"]
 
-pool = psycopg2.pool.SimpleConnectionPool(minconn, maxconn, **dbconfig.dbconfig)
+dbconfig = {
+    "host": config.dbconfig["host"],
+    "port": config.dbconfig["port"],
+    "user": config.dbconfig["user"],
+    "password": config.dbconfig["password"],
+    "database": config.dbconfig["database"]
+}
+
+pool = psycopg2.pool.SimpleConnectionPool(minconn, maxconn, **dbconfig)
 
 def dbinit(cur):
     filepath = os.path.dirname(__file__)
@@ -26,6 +34,7 @@ def check(conn):
     cur = conn.cursor()
     try:
         cur.execute("SELECT key, value FROM metadata")
+        conn.commit()
         return True
     except psycopg2.DatabaseError:
         conn.rollback()
@@ -76,7 +85,7 @@ class Word(object):
     def todict(self):
         return dict((k, self.__getattribute__(k)) for k in self.keys)
 
-WordKeys = ("wid", "word", "pronounce_eng", "pronounce_us")
+WordKeys = ("wid", "word", "ctime", "pronounce_eng", "pronounce_us")
 
 def marshal(keys, data):
     return dict(itertools.izip(keys, data))
@@ -97,7 +106,7 @@ def delword(cur, wid):
 
 @template
 def getword(cur, wid):
-    cur.execute("SELECT wid, word, pronounce_eng, pronounce_us FROM word WHERE wid = %s", (wid, ))
+    cur.execute("SELECT wid, word, ctime, pronounce_eng, pronounce_us FROM word WHERE wid = %s", (wid, ))
     w = cur.fetchone()
     if w:
         return marshal(WordKeys, w)
@@ -106,7 +115,7 @@ def getword(cur, wid):
 
 @template
 def getallword(cur):
-    cur.execute("SELECT wid, word, pronounce_eng, pronounce_us FROM word ORDER BY wid DESC")
+    cur.execute("SELECT wid, word, ctime, pronounce_eng, pronounce_us FROM word ORDER BY wid DESC")
     words = [marshal(WordKeys, w) for w in cur.fetchall()]
     return words
 

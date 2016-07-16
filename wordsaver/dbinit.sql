@@ -9,6 +9,7 @@ INSERT INTO metadata (key, value) VALUES
 CREATE TABLE word (
     wid SERIAL PRIMARY KEY, 
     word VARCHAR(80) UNIQUE NOT NULL, 
+    ctime TIMESTAMP DEFAULT current_timestamp,
     pronounce_eng VARCHAR(300), 
     pronounce_us VARCHAR(300)
 );
