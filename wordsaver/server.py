@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 
-import tornado as tn
-import tornado.web as tnweb
+import tornado
+from tornado.ioloop import IOLoop
+from tornado.web import RequestHandler, Application, RedirectHandler, StaticFileHandler
+from tornado import netutil
+from tornado.httpserver import HTTPServer
 import wordsaver.dbop as dbop
 import json
 import os
@@ -17,7 +20,7 @@ def exceptwrapper(meth):
             self.write({"status": "err", "message": str(err)})
     return f
 
-class WordsHandler(tnweb.RequestHandler):
+class WordsHandler(RequestHandler):
     @exceptwrapper
     def get(self):
         words = dbop.getallword()
@@ -46,7 +49,7 @@ class WordsHandler(tnweb.RequestHandler):
             raise StandardError("Content-Type is not \"applicaton/json\"")
 
 
-class WordHandler(tnweb.RequestHandler):
+class WordHandler(RequestHandler):
     @exceptwrapper
     def get(self, wid):
         wid = int(wid)
@@ -74,12 +77,17 @@ class WordHandler(tnweb.RequestHandler):
 staticfilepath = os.path.join(os.path.dirname(__file__), "static")
 
 def run():
-    app = tnweb.Application([
-        (r"/", tnweb.RedirectHandler, {"url": "/s/index.html"}),
-        (r"/s/(.*)", tnweb.StaticFileHandler, {"path": staticfilepath}),
+    app = Application([
+        (r"/", RedirectHandler, {"url": "/s/index.html"}),
+        (r"/s/(.*)", StaticFileHandler, {"path": staticfilepath}),
         (r"/word", WordsHandler),
         (r'/word/(.*)', WordHandler)
     ], debug=False)
 
-    app.listen(8080)
-    tn.ioloop.IOLoop.current().start()
+    server = HTTPServer(app)
+    # mode 438 means 0o666
+    socket = netutil.bind_unix_socket("/var/wordsaver/socket", mode=438)
+    tornado.process.fork_processes(0)
+    server.add_sockets([socket])
+    # server.start(0)
+    IOLoop.current().start()
