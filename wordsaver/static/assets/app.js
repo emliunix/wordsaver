@@ -112,7 +112,7 @@
                     wordresource.get()
                     .then((res) => {
                         this.$set("rawwords", res.json().result)
-                    }, err => this.$dispatch("toast-msg", "error", `Failed to fetch word list.\n${err}`))
+                    }, err => this.$dispatch("toast-msg", "error", `Failed to fetch word list.\n${toErrMsg(err)}`))
                 },
                 showWord(wid) {
                     wid = parseInt(wid)
@@ -129,7 +129,7 @@
                     if(wid) {
                        wordresource.remove({wid})
                        .then((res) => this.refresh() || this.$dispatch("toast-msg", "info", "单词已删除。")
-                            , (err) => this.$dispatch("toast-msg", "error", err))
+                            , (err) => this.$dispatch("toast-msg", "error", toErrMsg(err)))
                     }
                 },
                 addword(word) {
@@ -138,7 +138,7 @@
                         .then((res) => {
                             this.query = ""
                             this.refresh()
-                        }, (err) => this.$dispatch("toast-msg", "error", err))
+                        }, (err) => this.$dispatch("toast-msg", "error", toErrMsg(err)))
                     }
                 }
             },
@@ -155,5 +155,14 @@
                 this.refresh()
             }
         })
+
+        function toErrMsg(err) {
+            var json
+            if(json = err.json()) {
+                return json.message || json.msg || JSON.stringify(json)
+            } else {
+                return err.data
+            }
+        }
     }
 })(this)
